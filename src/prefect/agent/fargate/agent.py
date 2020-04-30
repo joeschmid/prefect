@@ -469,10 +469,12 @@ class FargateAgent(Agent):
             )
             # if current active task definition has current flow id, then exists
             if self.enable_task_revisions:
+                self.logger.info("JJS enable_task_revisions is True")
                 definition_exists = False
                 tag_dict = {x["key"]: x["value"] for x in definition_response["tags"]}
                 current_flow_id = tag_dict.get("PrefectFlowId")
                 current_flow_version = int(tag_dict.get("PrefectFlowVersion", 0))
+                self.logger.info("JJS tag_dict={}".format(tag_dict))
                 if current_flow_id == flow_run.flow.id[:8]:
                     self.logger.debug(
                         "Active task definition for {} already exists".format(
@@ -481,12 +483,14 @@ class FargateAgent(Agent):
                     )
                     definition_exists = True
                 elif flow_run.flow.version < current_flow_version:
+                    self.logger.info("JJS flow_run.flow.version < current_flow_version")
                     tag_search = self.boto3_client_tags.get_resources(
                         TagFilters=[
                             {"Key": "PrefectFlowId", "Values": [flow_run.flow.id[:8]]}
                         ],
                         ResourceTypeFilters=["ecs:task-definition"],
                     )
+                    self.logger.info("JJS tag_search={}".format(tag_search))
                     if tag_search["ResourceTagMappingList"]:
                         task_definition_dict["task_definition_name"] = [
                             x.get("ResourceARN")
@@ -599,10 +603,11 @@ class FargateAgent(Agent):
                 task_definition_name  # type: ignore
             )
         )
+        if self.launch_type:
+            flow_task_definition_kwargs["requiresCompatibilities"] = [self.launch_type]
         self.boto3_client.register_task_definition(
             family=task_definition_name,  # type: ignore
             containerDefinitions=container_definitions,
-            requiresCompatibilities=[self.launch_type],
             networkMode="awsvpc",
             **flow_task_definition_kwargs
         )
@@ -644,10 +649,11 @@ class FargateAgent(Agent):
             )
         )
 
+        if self.launch_type:
+            flow_task_run_kwargs["launchType"] = self.launch_type
         task = self.boto3_client.run_task(
             taskDefinition=task_definition_name,
             overrides={"containerOverrides": container_overrides},
-            launchType=self.launch_type,
             **flow_task_run_kwargs
         )
 
