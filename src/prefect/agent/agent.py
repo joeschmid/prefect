@@ -181,11 +181,11 @@ class Agent:
 
                         remaining_polls -= 1
 
-                        self.logger.debug(
-                            "Next query for flow runs in {} seconds".format(
-                                loop_intervals[index]
-                            )
-                        )
+                        #JJS self.logger.debug(
+                        #     "Next query for flow runs in {} seconds".format(
+                        #         loop_intervals[index]
+                        #     )
+                        # )
         finally:
             self.on_shutdown()
 
@@ -325,7 +325,7 @@ class Agent:
         Returns:
             - list: A list of GraphQLResult flow run objects
         """
-        self.logger.debug("Querying for flow runs")
+        #JJS self.logger.debug("Querying for flow runs")
         # keep a copy of what was curringly running before the query (future callbacks may be updating this set)
         currently_submitting_flow_runs = self.submitting_flow_runs.copy()
 
@@ -365,7 +365,7 @@ class Agent:
                 len(already_submitting), list(already_submitting)
             )
 
-        self.logger.debug(msg)
+        #JJS self.logger.debug(msg)
 
         # Query metadata fow flow runs found in queue
         query = {
