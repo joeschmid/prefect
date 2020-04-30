@@ -534,6 +534,10 @@ class FargateAgent(Agent):
                 StorageSchema().load(flow_run.flow.storage).name  # type: ignore
             )
         )
+        self.logger.info(  # JJS
+            "flow_task_definition_kwargs {} task_definition_name {} task_definition_name {}".
+                format(flow_task_definition_kwargs, container_definitions_kwargs, task_definition_name)
+        )
         container_definitions = [
             {
                 "name": "flow",
